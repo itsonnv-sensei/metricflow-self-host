@@ -1,0 +1,33 @@
+# Checks of this fork, on the staged files of every commit (pre-commit install, once).
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: detect-private-key
+      # production changes only through merge requests
+      - id: no-commit-to-branch
+        args: [--branch, production]
+
+  - repo: local
+    hooks:
+      - id: secret-scan
+        name: no password, token, key, internal IP or -p flag (scripts/security/scan_secrets.py)
+        language: python
+        entry: python scripts/security/scan_secrets.py
+      - id: forbid-env-files
+        name: forbid .env files (secrets)
+        language: fail
+        entry: ".env files hold secrets and must never be committed"
+        files: '(^|/)\.env(\..+)?$'
+        exclude: '(^|/)\.env\.example$'
+      - id: shell-scripts
+        name: bash -n on *.sh
+        language: system
+        entry: sh -c 'for f do bash -n "$f" || exit 1; done' --
+        files: '\.sh$'

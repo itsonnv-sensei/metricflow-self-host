@@ -1,0 +1,8 @@
+# No pipeline and no runner for this repository: every check runs in pre-commit on the laptop (README).
+workflow:
+  rules:
+    - when: never
+
+# GitLab wants one job in the file; the rule above never lets it run.
+unused:
+  script: "true"
